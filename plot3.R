@@ -1,7 +1,6 @@
 getwd()
 setwd("./Exploratory_Data_Analysis/ExData_Plotting1")
 getwd()
-
 ######################################################################################################
 ######################################################################################################
 ## BEGIN take a peek at the Working directory to ensure that files are present and unzipped. 
@@ -22,6 +21,7 @@ list.files("./data")
 if(!file.exists("./data/household_power_consumption.txt"))
 {unzip("./data/household_power_consumption.zip", exdir="./data")
  list.files("./data")}
+
 ## Check estimated memory size
 ## The dataset has 2,075,259 rows and 9 columns. First calculate a rough estimate of how much memory the dataset 
 ## will require in memory before reading into R. Make sure your computer has enough memory (most modern computers should be fine).
@@ -29,26 +29,36 @@ if(!file.exists("./data/household_power_consumption.txt"))
 2075259*9*8/1000000
 ## [1] 149.4186 Mb
 ## Yes we have enough space
+
 HPC <- read.table("./data/household_power_consumption.txt", 
                   sep = ";", 
                   header = TRUE,  
                   stringsAsFactors=FALSE,
-                  colClasses = c("character","character","character","NULL","NULL","NULL","NULL","NULL","NULL") 
-                  )
-## Check actual memory size, I reduced it significantly using colClasses
+                  colClasses = c("character","character","NULL","NULL","NULL","NULL","character","character","character") 
+                    )
+
+## Check actual memory size
 print(object.size(x=lapply(ls(), get)), units="Mb")
-## 47.8 Mb
+## 79.3 Mb
 str(HPC)
 
 ## Understand Missing Data structure using "?'s"
 ## Note that in this dataset missing values are coded as ?.
 tail(head(HPC,6842),4)
-grep("^[/?]",tail(head(HPC,6842),4)$Global_active_power)
+grep("^[/?]",tail(head(HPC,6842),4)$Sub_metering_1)
 ## this tells me my grep command is workig correctly it extracted the values that I wanted
 
 ## 1. Date: Date in format dd/mm/yyyy
 ## 2. Time: time in format hh:mm:ss
-## 3. Global_active_power: household global minute-averaged active power (in kilowatt)
+## 7. Sub_metering_1: energy sub-metering No. 1 (in watt-hour of active energy). 
+##    It corresponds to the kitchen, containing mainly a dishwasher, an oven and a microwave 
+##    (hot plates are not electric but gas powered).
+## 8. Sub_metering_2: energy sub-metering No. 2 (in watt-hour of active energy). 
+##    It corresponds to the laundry room, containing a washing-machine, a tumble-drier, a 
+##    refrigerator and a light.
+## 9. Sub_metering_3: energy sub-metering No. 3 (in watt-hour of active energy). 
+##    It corresponds to an electric water-heater and an air-conditioner.
+
 
 ## We will only be using data from the dates 2007-02-01 and 2007-02-02. One alternative is to read the data 
 ## from just those dates rather than reading in the entire dataset and subsetting to those dates.
@@ -59,7 +69,10 @@ tail(HPC)
 str(HPC)
 
 ## Check for missing in subsetted data
-grep("^[/?]",HPC$Global_active_power)
+grep("^[/?]",HPC$Sub_metering_1)
+grep("^[/?]",HPC$Sub_metering_2)
+grep("^[/?]",HPC$Sub_metering_3)
+sum(is.na(HPC$Sub_metering_3))
 ## I found that none of the subsetted data is missing. 
 
 ## You may find it useful to convert the Date and Time variables to Date/Time classes in R using the strptime() and as.Date() functions.
@@ -68,22 +81,45 @@ library(lubridate)
 HPC$DateTime <- dmy_hms(paste(HPC$Date, HPC$Time))
 HPC$Date <- dmy(HPC$Date)
 HPC$Time <- hms(HPC$Time)
-HPC$Global_active_power <- as.numeric(HPC$Global_active_power)
+HPC$Sub_metering_1 <- as.numeric(HPC$Sub_metering_1)
+HPC$Sub_metering_2 <- as.numeric(HPC$Sub_metering_2)
+HPC$Sub_metering_3 <- as.numeric(HPC$Sub_metering_3)
 
 str(HPC)
+head(HPC)
 list.files()
 ######################################################################################################
 ######################################################################################################
 ######################################################################################################
-## Plot 1
+## Plot 3
 ######################################################################################################
 ######################################################################################################
 ######################################################################################################
 ## Take a peek at what it looks like on the screen device
-hist(HPC$Global_active_power, xlab="Global Active Power (kilowatts)", col="red", main="Global Active Power")
+plot(HPC$DateTime, HPC$Sub_metering_1, ylab = "Energy sub metering",
+     type = "l",
+     xlab = "")
+lines(HPC$DateTime,HPC$Sub_metering_2, type="l",
+      col="red")
+lines(HPC$DateTime,HPC$Sub_metering_3, type="l",
+      col="blue")
+legend("topright", legend = names(HPC)[3:5], 
+       col = c("black", "red", "blue"), 
+       lwd=2, xjust=1)
+
 ## Use the PNG device to write the file out
-png(filename="plot1.png", width=480, height=480)
-hist(HPC$Global_active_power, xlab="Global Active Power (kilowatts)", col="red", main="Global Active Power")
+png(filename="plot3.png", width=480, height=480)
+plot(HPC$DateTime, HPC$Sub_metering_1, ylab = "Energy sub metering",
+     type = "l",
+     xlab = "")
+lines(HPC$DateTime,HPC$Sub_metering_2, type="l",
+      col="red")
+lines(HPC$DateTime,HPC$Sub_metering_3, type="l",
+      col="blue")
+legend("topright", legend = names(HPC)[3:5], 
+       col = c("black", "red", "blue"), 
+       lwd=2, xjust=1)
 dev.off()
 ## check to ensure file is in the directory
 grep("*.png",list.files(), value=TRUE)
+

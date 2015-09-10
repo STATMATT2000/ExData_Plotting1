@@ -1,7 +1,6 @@
 getwd()
 setwd("./Exploratory_Data_Analysis/ExData_Plotting1")
 getwd()
-
 ######################################################################################################
 ######################################################################################################
 ## BEGIN take a peek at the Working directory to ensure that files are present and unzipped. 
@@ -29,13 +28,15 @@ if(!file.exists("./data/household_power_consumption.txt"))
 2075259*9*8/1000000
 ## [1] 149.4186 Mb
 ## Yes we have enough space
+
 HPC <- read.table("./data/household_power_consumption.txt", 
                   sep = ";", 
                   header = TRUE,  
                   stringsAsFactors=FALSE,
                   colClasses = c("character","character","character","NULL","NULL","NULL","NULL","NULL","NULL") 
-                  )
-## Check actual memory size, I reduced it significantly using colClasses
+                    )
+
+## Check actual memory size
 print(object.size(x=lapply(ls(), get)), units="Mb")
 ## 47.8 Mb
 str(HPC)
@@ -71,19 +72,25 @@ HPC$Time <- hms(HPC$Time)
 HPC$Global_active_power <- as.numeric(HPC$Global_active_power)
 
 str(HPC)
+head(HPC)
 list.files()
+
 ######################################################################################################
 ######################################################################################################
 ######################################################################################################
-## Plot 1
+## Plot 2
 ######################################################################################################
 ######################################################################################################
 ######################################################################################################
 ## Take a peek at what it looks like on the screen device
-hist(HPC$Global_active_power, xlab="Global Active Power (kilowatts)", col="red", main="Global Active Power")
+plot(HPC$DateTime, HPC$Global_active_power, ylab = "Global Active Power (kilowatts)",
+     type = "l",
+     xlab = "")
 ## Use the PNG device to write the file out
-png(filename="plot1.png", width=480, height=480)
-hist(HPC$Global_active_power, xlab="Global Active Power (kilowatts)", col="red", main="Global Active Power")
+png(filename="plot2.png", width=480, height=480)
+plot(HPC$DateTime, HPC$Global_active_power, ylab = "Global Active Power (kilowatts)",
+     type = "l",
+     xlab = "")
 dev.off()
 ## check to ensure file is in the directory
 grep("*.png",list.files(), value=TRUE)
